@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Data;
 using System.Linq;
 using System.Threading;
 
@@ -221,9 +222,6 @@ namespace CodeAnalyzer
             context.EnableConcurrentExecution();
 
             context.RegisterSyntaxNodeAction(AnalyzeClassDeclaration, SyntaxKind.ClassDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzeMethodDeclaration, SyntaxKind.MethodDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzeVariableDeclaration, SyntaxKind.VariableDeclaration);
-            context.RegisterSyntaxNodeAction(AnalyzeIndent, SyntaxKind.WhitespaceTrivia);
             // Diğer kuralları buraya ekleyin
         }
 
@@ -238,43 +236,51 @@ namespace CodeAnalyzer
             }
         }
 
-        private static void AnalyzeMethodDeclaration(SyntaxNodeAnalysisContext context)
-        {
-            var methodDeclaration = (MethodDeclarationSyntax)context.Node;
-            var methodName = methodDeclaration.Identifier.Text;
-            if (!char.IsUpper(methodName[0]) || methodName.Any(char.IsLower))
-            {
-                var diagnostic = Diagnostic.Create(DiagnosticRules.PascalCaseRule, methodDeclaration.Identifier.GetLocation(), methodName);
-                context.ReportDiagnostic(diagnostic);
-            }
-        }
+        
 
-        private static void AnalyzeVariableDeclaration(SyntaxNodeAnalysisContext context)
+
+
+
+        private static void AnalyzePascalCase(SyntaxNodeAnalysisContext context)
         {
-            var variableDeclaration = (VariableDeclarationSyntax)context.Node;
-            foreach (var variable in variableDeclaration.Variables)
+            if (context.Node is ClassDeclarationSyntax classDeclaration)
             {
-                var variableName = variable.Identifier.Text;
-                if (!char.IsLower(variableName[0]))
+                var className = classDeclaration.Identifier.Text;
+                if (CommonUtilities.IsPascalCase(className) == false)
                 {
-                    var diagnostic = Diagnostic.Create(DiagnosticRules.CamelCaseRule, variable.Identifier.GetLocation(), variableName);
-                    context.ReportDiagnostic(diagnostic);
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.PascalCaseRule, classDeclaration.Identifier.GetLocation(), className);
+                }
+            }
+            else if (context.Node is MethodDeclarationSyntax methodDeclaration)
+            {
+                var methodName = methodDeclaration.Identifier.Text;
+                if (CommonUtilities.IsPascalCase(methodName) == false)
+                {
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.PascalCaseRule, methodDeclaration.Identifier.GetLocation(), methodName);
                 }
             }
         }
 
-        private static void AnalyzeIndent(SyntaxTreeAnalysisContext context)
+        private static void AnalyzeCamelCase(SyntaxNodeAnalysisContext context)
         {
-            var root = context.Tree.GetRoot(context.CancellationToken);
-            var lines = root.ToFullString().Split('\n');
-            for (int i = 0; i < lines.Length; i++)
+            if (context.Node is VariableDeclarationSyntax variableDeclaration)
             {
-                var line = lines[i];
-                if (line.StartsWith("\t") || (line.Length - line.TrimStart().Length) % 4 != 0)
+                foreach (var variable in variableDeclaration.Variables)
                 {
-                    var diagnostic = Diagnostic.Create(DiagnosticRules.IndentationRule, Location.Create(context.Tree, new TextSpan(root.GetLocation().SourceSpan.Start, 0)), $"Line {i + 1}: Use four spaces.");
-                    context.ReportDiagnostic(diagnostic);
+                    var variableName = variable.Identifier.Text;
+
+          
+                    if (!CommonUtilities.IsCamelCase(variableName))
+                    {
+                        var diagnostic = Diagnostic.Create(DiagnosticRules.CamelCaseRule, variable.Identifier.GetLocation(), variableName);
+                        context.ReportDiagnostic(diagnostic);
+                    }
                 }
+            }
+
+            else if (context.Node is FieldDeclarationSyntax fieldDeclaration)
+            {
+                //WIP
             }
         }
 
