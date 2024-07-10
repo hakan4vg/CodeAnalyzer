@@ -34,13 +34,21 @@ namespace CodeAnalyzer
                 isEnabledByDefault: IsEnabledByDefault
             );
         }*/
+        public static DiagnosticDescriptor PascalCaseRule = new DiagnosticDescriptor(
+            id: "CA001",
+            title: "PascalCase Naming Rule",
+            messageFormat: "The name '{0}' should be in PascalCase",
+            category: "Naming",
+            defaultSeverity: DiagnosticSeverity.Info,
+            isEnabledByDefault: true
+        );
 
         public static DiagnosticDescriptor CamelCaseRule = new DiagnosticDescriptor(
             id: "CA002",
             title: "CamelCase Naming Rule",
             messageFormat: "The name '{0}' should be in camelCase",
             category: "Naming",
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             isEnabledByDefault: true
         );
         
@@ -49,7 +57,7 @@ namespace CodeAnalyzer
             title: "ConstantsRule",
             messageFormat: "The constant '{0}' is not properly named",
             category: "Naming",
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             isEnabledByDefault: true
         );
 
@@ -76,7 +84,7 @@ namespace CodeAnalyzer
             title: "Line Length Rule",
             messageFormat: "A line should not exceed 120 characters.",
             category: "Code Conventions",
-            defaultSeverity: DiagnosticSeverity.Warning,
+            defaultSeverity: DiagnosticSeverity.Info,
             isEnabledByDefault: true
         );
 
@@ -143,7 +151,7 @@ namespace CodeAnalyzer
             isEnabledByDefault: true
         );
 
-        public static DiagnosticDescriptor CodeBlockFramingRule = new DiagnosticDescriptor(
+        public static DiagnosticDescriptor CodeBlockScopingRule = new DiagnosticDescriptor(
             id: "CA014",
             title: "Code Block Framing Rule",
             messageFormat: "This block should've been framed in curly braces",
