@@ -213,7 +213,10 @@ namespace CodeAnalyzer
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             DiagnosticRules.PascalCaseRule,
             DiagnosticRules.CamelCaseRule,
-            DiagnosticRules.IndentationRule
+            DiagnosticRules.IndentationRule,
+            DiagnosticRules.WhitespaceRule,
+            DiagnosticRules.ConstantsRule
+           
         );
 
         public override void Initialize(AnalysisContext context)
@@ -280,7 +283,72 @@ namespace CodeAnalyzer
 
             else if (context.Node is FieldDeclarationSyntax fieldDeclaration)
             {
-                //WIP
+                foreach(var variable in fieldDeclaration.Declaration.Variables)
+                {
+                    var variableName = variable.Identifier.Text;
+
+                    if (!CommonUtilities.IsCamelCase(variableName))
+                    {
+                        var diagnostic = Diagnostic.Create(DiagnosticRules.CamelCaseRule, variable.Identifier.GetLocation(), variableName);
+                        context.ReportDiagnostic(diagnostic);
+                    }
+                }
+            }
+        }
+
+
+        private static void AnalyzeConstantNaming(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is FieldDeclarationSyntax fieldDeclaration)
+            {
+                if (fieldDeclaration.Modifiers.Any(SyntaxKind.ConstKeyword))
+                {
+                    foreach (var variable in fieldDeclaration.Declaration.Variables)
+                    {
+                        var constantName = variable.Identifier.Text;
+                        if (!constantName.All(char.IsUpper) || !constantName.Contains('_')){
+                            var diagnostic = Diagnostic.Create(DiagnosticRules.ConstantsRule, variable.Identifier.GetLocation(), constantName);
+                            context.ReportDiagnostic(diagnostic);
+
+                        }
+                    }
+                }
+            }
+        }
+
+
+        private static void AnlyzeIndentations(SyntaxNodeAnalysisContext context)
+        {
+            var root = context.Node.SyntaxTree.GetRoot(context.CancellationToken);
+            var lines = root.ToFullString().Split('\n');
+            int linenumber = 1;
+            foreach (var line in lines)
+            {
+                if (line.StartsWith("\t") || line.Length - line.TrimStart().Length % 4 != 0)
+                {
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.IndentationRule, Location.Create(context.Node.SyntaxTree, new TextSpan(root.GetLocation().SourceSpan.Start, 0)),
+                                                       $"Line {linenumber}: Use four spaces.");
+                    context.ReportDiagnostic(diagnostic);
+
+                }
+                linenumber++;
+
+            }
+
+        }
+
+        private static void AnalyzeWhiteSpace(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is BinaryExpressionSyntax binaryExpression)
+            {
+                var leftToken = binaryExpression.Left.GetLastToken();
+                var rightToken = binaryExpression.Right.GetLastToken();
+                var operatorToken = binaryExpression.OperatorToken;
+
+                if(!leftToken.TrailingTrivia.Any(SyntaxKind.WhitespaceTrivia) || !rightToken.LeadingTrivia.Any(SyntaxKind.WhitespaceTrivia)){
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.WhitespaceRule, operatorToken.GetLocation(), operatorToken.Text);
+                    context.ReportDiagnostic(diagnostic);
+                }
             }
         }
 
