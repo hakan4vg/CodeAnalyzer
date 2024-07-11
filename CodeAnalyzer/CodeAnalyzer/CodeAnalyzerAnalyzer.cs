@@ -241,9 +241,6 @@ namespace CodeAnalyzer
 
         
 
-
-
-
         private static void AnalyzePascalCase(SyntaxNodeAnalysisContext context)
         {
             if (context.Node is ClassDeclarationSyntax classDeclaration)
@@ -251,7 +248,8 @@ namespace CodeAnalyzer
                 var className = classDeclaration.Identifier.Text;
                 if (CommonUtilities.IsPascalCase(className) == false)
                 {
-                    var diagnostic = Diagnostic.Create(DiagnosticRules.PascalCaseRule, classDeclaration.Identifier.GetLocation(), className);
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.PascalCaseRule, 
+                                                       classDeclaration.Identifier.GetLocation(), className);
                 }
             }
             else if (context.Node is MethodDeclarationSyntax methodDeclaration)
@@ -259,7 +257,8 @@ namespace CodeAnalyzer
                 var methodName = methodDeclaration.Identifier.Text;
                 if (CommonUtilities.IsPascalCase(methodName) == false)
                 {
-                    var diagnostic = Diagnostic.Create(DiagnosticRules.PascalCaseRule, methodDeclaration.Identifier.GetLocation(), methodName);
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.PascalCaseRule, 
+                                                       methodDeclaration.Identifier.GetLocation(), methodName);
                 }
             }
         }
@@ -275,7 +274,8 @@ namespace CodeAnalyzer
           
                     if (!CommonUtilities.IsCamelCase(variableName))
                     {
-                        var diagnostic = Diagnostic.Create(DiagnosticRules.CamelCaseRule, variable.Identifier.GetLocation(), variableName);
+                        var diagnostic = Diagnostic.Create(DiagnosticRules.CamelCaseRule, 
+                                                           variable.Identifier.GetLocation(), variableName);
                         context.ReportDiagnostic(diagnostic);
                     }
                 }
@@ -289,7 +289,8 @@ namespace CodeAnalyzer
 
                     if (!CommonUtilities.IsCamelCase(variableName))
                     {
-                        var diagnostic = Diagnostic.Create(DiagnosticRules.CamelCaseRule, variable.Identifier.GetLocation(), variableName);
+                        var diagnostic = Diagnostic.Create(DiagnosticRules.CamelCaseRule, 
+                                                           variable.Identifier.GetLocation(), variableName);
                         context.ReportDiagnostic(diagnostic);
                     }
                 }
@@ -307,7 +308,8 @@ namespace CodeAnalyzer
                     {
                         var constantName = variable.Identifier.Text;
                         if (!constantName.All(char.IsUpper) || !constantName.Contains('_')){
-                            var diagnostic = Diagnostic.Create(DiagnosticRules.ConstantsRule, variable.Identifier.GetLocation(), constantName);
+                            var diagnostic = Diagnostic.Create(DiagnosticRules.ConstantsRule, 
+                                                               variable.Identifier.GetLocation(), constantName);
                             context.ReportDiagnostic(diagnostic);
 
                         }
@@ -326,7 +328,9 @@ namespace CodeAnalyzer
             {
                 if (line.StartsWith("\t") || line.Length - line.TrimStart().Length % 4 != 0)
                 {
-                    var diagnostic = Diagnostic.Create(DiagnosticRules.IndentationRule, Location.Create(context.Node.SyntaxTree, new TextSpan(root.GetLocation().SourceSpan.Start, 0)),
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.IndentationRule, 
+                                                       Location.Create(context.Node.SyntaxTree,
+                                                       new TextSpan(root.GetLocation().SourceSpan.Start, 0)),
                                                        $"Line {linenumber}: Use four spaces.");
                     context.ReportDiagnostic(diagnostic);
 
@@ -345,14 +349,75 @@ namespace CodeAnalyzer
                 var rightToken = binaryExpression.Right.GetLastToken();
                 var operatorToken = binaryExpression.OperatorToken;
 
-                if(!leftToken.TrailingTrivia.Any(SyntaxKind.WhitespaceTrivia) || !rightToken.LeadingTrivia.Any(SyntaxKind.WhitespaceTrivia)){
-                    var diagnostic = Diagnostic.Create(DiagnosticRules.WhitespaceRule, operatorToken.GetLocation(), operatorToken.Text);
+                if(!leftToken.TrailingTrivia.Any(SyntaxKind.WhitespaceTrivia) || 
+                   !rightToken.LeadingTrivia.Any(SyntaxKind.WhitespaceTrivia)){
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.WhitespaceRule, 
+                                                       operatorToken.GetLocation(), operatorToken.Text);
                     context.ReportDiagnostic(diagnostic);
                 }
             }
         }
 
-        // Diğer analiz metodlarını burada tanımlayın
+
+        private static void AnalyzeMethodSpacing(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is MethodDeclarationSyntax methodDeclaration)
+            {
+                var methodSyntax = methodDeclaration.Parent.DescendantNodes().OfType<MethodDeclarationSyntax>().ToList();
+                for (int i = 0; i < methodSyntax.Count; i++)
+                {
+                    var currentMethod = methodSyntax[i];
+                    var nextMethod = methodSyntax[i + 1];
+
+                    var currentMethodEndLine = currentMethod.GetLocation().GetLineSpan().EndLinePosition.Line;
+                    var nextMethodStartLine = nextMethod.GetLocation().GetLineSpan().StartLinePosition.Line;
+
+                    if (nextMethodStartLine - currentMethodEndLine <= 1) {
+
+                        var diagnostic = Diagnostic.Create(DiagnosticRules.NewLineRule, 
+                                                           nextMethod.Identifier.GetLocation(),
+                                                           nextMethod.Identifier);
+                        context.ReportDiagnostic(diagnostic);
+                    }
+                }
+            } 
+        }
+
+
+        private static void AnalyzeLineLength(SyntaxNodeAnalysisContext context)
+        {
+            var root = context.Node.SyntaxTree.GetRoot(context.CancellationToken);
+            var lines = root.ToFullString().Split('\n');
+
+            for (int i = 0; i <= lines.Length; i++)
+            {
+                var line = lines[i];
+                if(line.Length > 0)
+                {
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.LineLengthRule,
+                                                       Location.Create(context.Node.SyntaxTree, 
+                                                       new TextSpan(root.GetLocation().SourceSpan.Start, 0)), i + 1);
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
+        }
+
+
+        private static void AnalyzeParameterCount(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is MethodDeclarationSyntax methodDeclaration)
+            {
+                if (methodDeclaration.ParameterList.Parameters.Count > 5)
+                {
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.ParameterCountRule, 
+                                                       methodDeclaration.Identifier.GetLocation(), 
+                                                       methodDeclaration.Identifier.Text);
+                }
+            }
+        }
+
+
+        // Diğer analiz metodlarını burada tanımla
     }
 
 }
