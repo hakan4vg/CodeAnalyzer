@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace CodeAnalyzer
@@ -170,26 +171,17 @@ namespace CodeAnalyzer
             isEnabledByDefault: true
         );
 
-        public static DiagnosticDescriptor GetterRule = new DiagnosticDescriptor(
+        public static DiagnosticDescriptor GetterSetterRule = new DiagnosticDescriptor(
             id: "CA016",
-            title: "Getter Rule",
-            messageFormat: "You're missing getter method",
-            category: "Encapsulation",
-            defaultSeverity: DiagnosticSeverity.Warning,
-            isEnabledByDefault: true
-        );
-       
-        public static DiagnosticDescriptor SetterRule = new DiagnosticDescriptor(
-            id: "CA017",
-            title: "Setter Rule",
-            messageFormat: "You're missing setter method",
+            title: "Getter/Setter Rule",
+            messageFormat: "You're missing getter/setter method",
             category: "Encapsulation",
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true
         );
 
         public static DiagnosticDescriptor GotoBanRule= new DiagnosticDescriptor(
-            id: "CA018",
+            id: "CA017",
             title: "Goto Ban Rule",
             messageFormat: "Goto usage is considered a bad practice",
             category: "Code Conventions",
@@ -198,7 +190,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor VarBanRule = new DiagnosticDescriptor(
-            id: "CA019",
+            id: "CA018",
             title: "Var Ban Rule",
             messageFormat: "Using var instead of type is considered a bad practice",
             category: "Code Conventions",
@@ -215,7 +207,20 @@ namespace CodeAnalyzer
             DiagnosticRules.CamelCaseRule,
             DiagnosticRules.IndentationRule,
             DiagnosticRules.WhitespaceRule,
-            DiagnosticRules.ConstantsRule
+            DiagnosticRules.ConstantsRule,
+            DiagnosticRules.LineLengthRule,
+            DiagnosticRules.NewLineRule,
+            DiagnosticRules.ParameterCountRule,
+            DiagnosticRules.MethodLengthRule,
+            DiagnosticRules.UnnecessaryCurlyBracesRule,
+            DiagnosticRules.PublicClassRule,
+            DiagnosticRules.PublicPropertyRule,
+            DiagnosticRules.PrivateMethodRule,
+            DiagnosticRules.CodeBlockScopingRule,
+            DiagnosticRules.NullReferenceRule,
+            DiagnosticRules.GetterSetterRule,
+            DiagnosticRules.GotoBanRule,
+            DiagnosticRules.VarBanRule
            
         );
 
@@ -224,23 +229,27 @@ namespace CodeAnalyzer
             context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
             context.EnableConcurrentExecution();
 
-            context.RegisterSyntaxNodeAction(AnalyzeClassDeclaration, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzePascalCase, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeCamelCase, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeIndentations, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeWhiteSpace, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeConstantNaming, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeLineLength, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeMethodSpacing, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeParameterCount, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeCurlyBraces, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzePublicClasses, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzePublicProperty, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzePrivateMethods, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeCodeBlockScoping, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeNullReference, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeGetterSetter, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeGoto, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeVarUsage, SyntaxKind.ClassDeclaration);
+
             // Diğer kuralları buraya ekleyin
         }
-
-        private static void AnalyzeClassDeclaration(SyntaxNodeAnalysisContext context)
-        {
-            var classDeclaration = (ClassDeclarationSyntax)context.Node;
-            var className = classDeclaration.Identifier.Text;
-            if (!char.IsUpper(className[0]) || className.Any(char.IsLower))
-            {
-                var diagnostic = Diagnostic.Create(DiagnosticRules.PascalCaseRule, classDeclaration.Identifier.GetLocation(), className);
-                context.ReportDiagnostic(diagnostic);
-            }
-        }
-
         
-
         private static void AnalyzePascalCase(SyntaxNodeAnalysisContext context)
         {
             if (context.Node is ClassDeclarationSyntax classDeclaration)
@@ -319,7 +328,7 @@ namespace CodeAnalyzer
         }
 
 
-        private static void AnlyzeIndentations(SyntaxNodeAnalysisContext context)
+        private static void AnalyzeIndentations(SyntaxNodeAnalysisContext context)
         {
             var root = context.Node.SyntaxTree.GetRoot(context.CancellationToken);
             var lines = root.ToFullString().Split('\n');
@@ -412,11 +421,155 @@ namespace CodeAnalyzer
                     var diagnostic = Diagnostic.Create(DiagnosticRules.ParameterCountRule, 
                                                        methodDeclaration.Identifier.GetLocation(), 
                                                        methodDeclaration.Identifier.Text);
+                    context.ReportDiagnostic(diagnostic);
                 }
             }
         }
 
+        private static void AnalyzeMethodLength(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is MethodDeclarationSyntax methodDeclaration)
+            {
+                var startLine = methodDeclaration.GetLocation().GetLineSpan().StartLinePosition.Line;
+                var endLine = methodDeclaration.GetLocation().GetLineSpan().EndLinePosition.Line;
 
+                if (endLine - startLine > 30)
+                {
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.MethodLengthRule,
+                                                       methodDeclaration.Identifier.GetLocation(),
+                                                       methodDeclaration.Identifier.Text);
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
+
+        }
+       
+        private static void AnalyzeCurlyBraces(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is BlockSyntax block)
+            {
+                if (block.Parent is IfStatementSyntax || block.Parent is ElseClauseSyntax ||
+                    block.Parent is ForStatementSyntax || block.Parent is WhileStatementSyntax)
+                {
+                    if(block.Statements.Count > 1)
+                    {
+                        var diagnostic = Diagnostic.Create(DiagnosticRules.UnnecessaryCurlyBracesRule,
+                                                           block.GetLocation());
+                        context.ReportDiagnostic(diagnostic);
+                    }
+                }
+            }
+        }
+
+        private static void AnalyzePublicClasses(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is ClassDeclarationSyntax classDeclaration)
+            {
+                if (!classDeclaration.Modifiers.Any(SyntaxKind.PublicKeyword))
+                {
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.PublicClassRule
+                                                       ,classDeclaration.Identifier.GetLocation()
+                                                       ,classDeclaration.Identifier.Text);
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
+        }
+
+        private static void AnalyzePrivateMethods(SyntaxNodeAnalysisContext context)
+        {
+            if(context.Node is MethodDeclarationSyntax methodDeclaration)
+            {
+                if (!methodDeclaration.Modifiers.Any(SyntaxKind.PrivateKeyword))
+                {
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.PrivateMethodRule
+                                                      ,methodDeclaration.Identifier.GetLocation()
+                                                      ,methodDeclaration.Identifier.Text);
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
+        }
+
+        private static void AnalyzePublicProperty(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is PropertyDeclarationSyntax propertyDeclaration)
+            {
+                if (!propertyDeclaration.Modifiers.Any(SyntaxKind.PublicKeyword))
+                {
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.PublicPropertyRule
+                                                      ,propertyDeclaration.GetLocation()
+                                                      ,propertyDeclaration.Identifier.Text);
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
+        }
+
+        private static void AnalyzeCodeBlockScoping(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is BlockSyntax block)
+            {
+                var statements = block.Statements;
+                if (statements.Count == 1 && statements.First() is BlockSyntax)
+                {
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.CodeBlockScopingRule
+                                                      ,block.GetLocation());
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
+        }
+
+        private static void AnalyzeNullReference(SyntaxNodeAnalysisContext context)
+        {
+            if (context.Node is IfStatementSyntax ifStatement)
+            {
+                var condition = ifStatement.Condition;
+                if (condition is BinaryExpressionSyntax binaryExpression &&
+                    binaryExpression.IsKind(SyntaxKind.EqualsExpression) &&
+                    (binaryExpression.Left.IsKind(SyntaxKind.NullLiteralExpression) ||
+                    binaryExpression.Right.IsKind(SyntaxKind.NullLiteralExpression)))
+                {
+                    var diagnostic = Diagnostic.Create(DiagnosticRules.NullReferenceRule
+                                                      ,ifStatement.GetLocation());
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
+        }
+
+        private static void AnalyzeGetterSetter(SyntaxNodeAnalysisContext context)
+        {
+            if(context.Node is PropertyDeclarationSyntax propertyDeclaration)
+            {
+                if(propertyDeclaration.AccessorList != null)
+                {
+                    foreach ( var accessor in propertyDeclaration.AccessorList.Accessors)
+                    {
+                        if (accessor.Body==null && accessor.ExpressionBody == null)
+                        {
+                            var diagnostic = Diagnostic.Create(DiagnosticRules.GetterSetterRule
+                                                              ,accessor.GetLocation());
+                            context.ReportDiagnostic(diagnostic);
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void AnalyzeGoto(SyntaxNodeAnalysisContext context)
+        {
+            if(context.Node is GotoStatementSyntax gotoStatement)
+            {
+                var diagnostic = Diagnostic.Create(DiagnosticRules.GotoBanRule, context.Node.GetLocation());
+                context.ReportDiagnostic(diagnostic);
+            }
+        }
+
+        private static void AnalyzeVarUsage(SyntaxNodeAnalysisContext context)
+        {
+            if(context.Node is VariableDeclarationSyntax variableDeclaration && variableDeclaration.Type.IsVar)
+            {
+                var diagnostic = Diagnostic.Create(DiagnosticRules.VarBanRule, context.Node.GetLocation());
+                context.ReportDiagnostic(diagnostic);
+            }
+        }
         // Diğer analiz metodlarını burada tanımla
     }
 
