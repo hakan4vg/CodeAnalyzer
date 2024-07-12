@@ -16,28 +16,8 @@ namespace CodeAnalyzer
 
     public static class DiagnosticRules
     {
-
-
-        /*public abstract class DescriptorBase
-        {
-            public abstract string Id { get; }
-            public abstract string Title { get; }
-            public abstract string MessageFormat { get; }
-            public abstract string Category { get; }
-            public abstract DiagnosticSeverity DefaultSeverity { get; }
-            public abstract bool IsEnabledByDefault { get; }
-
-            public DiagnosticDescriptor Rule => new DiagnosticDescriptor(
-                id: Id,
-                title: Title,
-                messageFormat: MessageFormat,
-                category: Category,
-                defaultSeverity: DefaultSeverity,
-                isEnabledByDefault: IsEnabledByDefault
-            );
-        }*/
         public static DiagnosticDescriptor PascalCaseRule = new DiagnosticDescriptor(
-            id: "CA001",
+            id: "HF001",
             title: "PascalCase Naming Rule",
             messageFormat: "The name '{0}' should be in PascalCase",
             category: "Naming",
@@ -46,7 +26,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor CamelCaseRule = new DiagnosticDescriptor(
-            id: "CA002",
+            id: "HF002",
             title: "CamelCase Naming Rule",
             messageFormat: "The name '{0}' should be in camelCase",
             category: "Naming",
@@ -55,7 +35,7 @@ namespace CodeAnalyzer
         );
         
         public static DiagnosticDescriptor ConstantsRule = new DiagnosticDescriptor(
-            id: "CA003",
+            id: "HF003",
             title: "ConstantsRule",
             messageFormat: "The constant '{0}' is not properly named",
             category: "Naming",
@@ -64,7 +44,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor IndentationRule = new DiagnosticDescriptor(
-            id: "CA004",
+            id: "HF004",
             title: "Indentation Rule",
             messageFormat: "The line '{0}' is not indented properly (4 spaces)",
             category: "Whitespaces and Indents",
@@ -73,7 +53,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor WhitespaceRule = new DiagnosticDescriptor(
-            id: "CA005",
+            id: "HF005",
             title: "Whitespace Rule",
             messageFormat: "Operators should have whitespaces around them",
             category: "Whitespaces and Indents",
@@ -82,7 +62,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor LineLengthRule = new DiagnosticDescriptor(
-            id: "CA006",
+            id: "HF006",
             title: "Line Length Rule",
             messageFormat: "A line should not exceed 120 characters.",
             category: "Code Conventions",
@@ -91,7 +71,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor NewLineRule = new DiagnosticDescriptor(
-            id: "CA007",
+            id: "HF007",
             title: "New Line Rule",
             messageFormat: "You should add a new line between methods",
             category: "Code Conventions",
@@ -100,7 +80,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor ParameterCountRule = new DiagnosticDescriptor(
-            id: "CA008",
+            id: "HF008",
             title: "Parameter Count Rule",
             messageFormat: "You shouldn't use more than five parameters per method",
             category: "Class and Method Structure",
@@ -109,7 +89,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor MethodLengthRule = new DiagnosticDescriptor(
-            id: "CA009",
+            id: "HF009",
             title: "Method Length Rule",
             messageFormat: "Method '{0}' should not exceed ~70 lines",
             category: "Code Conventions",
@@ -118,7 +98,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor UnnecessaryCurlyBracesRule = new DiagnosticDescriptor(
-            id:"CA010",
+            id:"HF010",
             title:"Unnecessary Curly Braces Rule",
             messageFormat:"You've entered unnecessary curly braces",
             category:"Class and Method Structure",
@@ -127,7 +107,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor PublicClassRule = new DiagnosticDescriptor(
-            id: "CA011",
+            id: "HF011",
             title: "Public Class Access Modifier Rule",
             messageFormat: "Class '{0}' should be public",
             category: "Identifiers",
@@ -136,7 +116,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor PrivateMethodRule = new DiagnosticDescriptor(
-            id: "CA012",
+            id: "HF012",
             title: "Private Method Modifier Rule",
             messageFormat: "Method '{0}' should be private",
             category: "Identifiers",
@@ -145,7 +125,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor PublicPropertyRule = new DiagnosticDescriptor(
-            id: "CA013",
+            id: "HF013",
             title: "Public Property Modifier Rule",
             messageFormat: "Property '{0}' should be public",
             category: "Identifiers",
@@ -154,7 +134,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor CodeBlockScopingRule = new DiagnosticDescriptor(
-            id: "CA014",
+            id: "HF014",
             title: "Code Block Framing Rule",
             messageFormat: "This block should've been framed in curly braces",
             category: "Code Scoping",
@@ -163,7 +143,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor NullReferenceRule = new DiagnosticDescriptor(
-            id: "CA015",
+            id: "HF015",
             title: "Null Reference Rule",
             messageFormat: "You are trying to use something that is null",
             category: "Code Scoping",
@@ -172,7 +152,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor GetterSetterRule = new DiagnosticDescriptor(
-            id: "CA016",
+            id: "HF016",
             title: "Getter/Setter Rule",
             messageFormat: "You're missing getter/setter method",
             category: "Encapsulation",
@@ -181,7 +161,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor GotoBanRule= new DiagnosticDescriptor(
-            id: "CA017",
+            id: "HF017",
             title: "Goto Ban Rule",
             messageFormat: "Goto usage is considered a bad practice",
             category: "Code Conventions",
@@ -190,7 +170,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor VarBanRule = new DiagnosticDescriptor(
-            id: "CA018",
+            id: "HF018",
             title: "Var Ban Rule",
             messageFormat: "Using var instead of type is considered a bad practice",
             category: "Code Conventions",
@@ -199,7 +179,7 @@ namespace CodeAnalyzer
         );
 
         public static DiagnosticDescriptor IfStatementRule = new DiagnosticDescriptor(
-            id: "CA019",
+            id: "HF019",
             title: "If Statement Rule",
             messageFormat: "Nested if statement usage is discouraged",
             category: "Code Scoping",
@@ -207,8 +187,8 @@ namespace CodeAnalyzer
             isEnabledByDefault: true
         );
 
-        public static DiagnosticDescriptor ProperEnclosementRole = new DiagnosticDescriptor(
-            id: "CA020",
+        public static DiagnosticDescriptor ProperEnclosementRule = new DiagnosticDescriptor(
+            id: "HF020",
             title: "Proper Enclosement Rule",
             messageFormat: "You're missing an enclosement",
             category: "Code Scoping",
@@ -239,7 +219,8 @@ namespace CodeAnalyzer
             DiagnosticRules.NullReferenceRule,
             DiagnosticRules.GetterSetterRule,
             DiagnosticRules.GotoBanRule,
-            DiagnosticRules.VarBanRule
+            DiagnosticRules.VarBanRule,
+            DiagnosticRules.ProperEnclosementRule
            
         );
 
@@ -265,6 +246,7 @@ namespace CodeAnalyzer
             context.RegisterSyntaxNodeAction(AnalyzeGetterSetter, SyntaxKind.ClassDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzeGoto, SyntaxKind.ClassDeclaration);
             context.RegisterSyntaxNodeAction(AnalyzeVarUsage, SyntaxKind.ClassDeclaration);
+            context.RegisterSyntaxNodeAction(AnalyzeEnclosing, SyntaxKind.ClassDeclaration);
 
             // Diğer kuralları buraya ekleyin
         }
@@ -592,7 +574,37 @@ namespace CodeAnalyzer
         
         private static void AnalyzeIfStatement() { }
 
-        private static void AnalyzeEnclosing() { }
+        private static void AnalyzeEnclosing(SyntaxNodeAnalysisContext context) 
+        {
+            var root = context.SemanticModel.SyntaxTree.GetRoot();
+            var tokens = root.DescendantTokens();
+            var stack = new Stack<SyntaxToken>();
+
+            foreach (var token in tokens)
+            {
+                if (token.IsKind(SyntaxKind.OpenParenToken))
+                {
+                    stack.Push(token);
+                }
+                else if (token.IsKind(SyntaxKind.CloseParenToken))
+                {
+                    if (stack.Count == 0)
+                    {
+                        var diagnostic = Diagnostic.Create(DiagnosticRules.ProperEnclosementRule, token.GetLocation());
+                        context.ReportDiagnostic(diagnostic);
+                    }
+                       
+
+                    var openParen = stack.Pop();
+
+                    if (!openParen.IsKind(SyntaxKind.OpenParenToken)) { 
+                        var diagnostic = Diagnostic.Create(DiagnosticRules.ProperEnclosementRule
+                                                          ,token.GetLocation(), "Mismatched parenthesis");
+                        context.ReportDiagnostic(diagnostic);
+                    }
+                }
+            }
+        }
     }
 
 }
