@@ -11,7 +11,7 @@
 using System;
 using System.Reflection;
 
-namespace CodeAnalyzer
+namespace CodeAnalyzerSpace
 {
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.

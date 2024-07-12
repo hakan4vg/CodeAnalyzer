@@ -11,14 +11,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace CodeAnalyzerSpace
+namespace CodeAnalyzer
 {
-
 
     public static class DiagnosticRules
     {
-
-
         public static DiagnosticDescriptor PascalCaseRule = new DiagnosticDescriptor(
             id: "HF001",
             title: "PascalCase Naming Rule",
@@ -204,28 +201,6 @@ namespace CodeAnalyzerSpace
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class CodeAnalyzer : DiagnosticAnalyzer
     {
-
-        public static Diagnostic[] GetSortedDiagnostics(DiagnosticAnalyzer analyzer, string source)
-        {
-            var workspace = new AdhocWorkspace();
-            var projectId = ProjectId.CreateNewId();
-            var versionStamp = VersionStamp.Create();
-
-            var solution = workspace.CurrentSolution
-                .AddProject(projectId, "CodeAnalyzer", "CodeAnalyzerTests", LanguageNames.CSharp)
-                .AddMetadataReference(projectId, MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
-                .AddDocument(DocumentId.CreateNewId(projectId), "PascalCaseTest.cs", SourceText.From(source))
-                .WithProjectCompilationOptions(projectId, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
-            var project = solution.GetProject(projectId);
-            var compilation = project.GetCompilationAsync().Result;
-            var compilationWithAnalyzers = compilation.WithAnalyzers(ImmutableArray.Create(analyzer));
-            var diagnostics = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
-
-            return diagnostics.OrderBy(d => d.Location.SourceSpan.Start).ToArray();
-        }
-
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             DiagnosticRules.PascalCaseRule,
             DiagnosticRules.CamelCaseRule,
