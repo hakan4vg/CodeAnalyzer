@@ -20,7 +20,7 @@ namespace CodeAnalyzer
     {
         public sealed override ImmutableArray<string> FixableDiagnosticIds
         {
-            get { return ImmutableArray.Create(CodeAnalyzerAnalyzer.DiagnosticId); }
+            get { return ImmutableArray.Create(CodeAnalyzer.DiagnosticId); }
         }
 
         public sealed override FixAllProvider GetFixAllProvider()

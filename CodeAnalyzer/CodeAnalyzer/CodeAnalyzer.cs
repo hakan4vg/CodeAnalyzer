@@ -197,10 +197,29 @@ namespace CodeAnalyzer
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true
         );
+
+        public static DiagnosticDescriptor IfStatementRule = new DiagnosticDescriptor(
+            id: "CA019",
+            title: "If Statement Rule",
+            messageFormat: "Nested if statement usage is discouraged",
+            category: "Code Scoping",
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true
+        );
+
+        public static DiagnosticDescriptor ProperEnclosementRole = new DiagnosticDescriptor(
+            id: "CA020",
+            title: "Proper Enclosement Rule",
+            messageFormat: "You're missing an enclosement",
+            category: "Code Scoping",
+            defaultSeverity: DiagnosticSeverity.Error,
+            isEnabledByDefault: true
+        );
+
     }
 
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    public class CodeAnalyzerAnalyzer : DiagnosticAnalyzer
+    public class CodeAnalyzer : DiagnosticAnalyzer
     {
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
             DiagnosticRules.PascalCaseRule,
@@ -570,7 +589,10 @@ namespace CodeAnalyzer
                 context.ReportDiagnostic(diagnostic);
             }
         }
-        // Diğer analiz metodlarını burada tanımla
+        
+        private static void AnalyzeIfStatement() { }
+
+        private static void AnalyzeEnclosing() { }
     }
 
 }
